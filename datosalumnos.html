@@ -6,6 +6,111 @@
     <title>Document</title>
 </head>
 <body>
-    
+
+        <h1>PRACTICA JQUERY</h1>
+        <select id="selCursos">
+
+        </select>
+
+        <div id="contenedorLista"></div>
+
+        <div id="contenedorDatos"></div>
+
+    <script src="js/jquery-3.7.1.js"></script>
+    <script>
+
+
+        let url="https://apiejemplos.azurewebsites.net/"
+        $(document).ready(function () {
+
+            cargarOptions()
+
+            $("#selCursos").change(function(){
+                console.log($(this).val())
+
+                cargarOptions()
+                console.log("__________________id opt"+$(this).val())
+                cargarAlumnos($(this).val())
+            })
+        })
+
+        function cargarOptions(){
+            let request="api/Alumnos/Cursos"
+
+            $.ajax({
+                url:url+request,
+                type:"GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log("--ENTRANDO--");
+                    var html="";
+                    $.each(data, function (index, value) {
+                        html+="<option value='" + value + "'>" + value + "</option>";
+                    })
+                    $("#selCursos").html(html);
+                }
+            })
+        }
+        function cargarAlumnos(id){
+            let request="api/Alumnos/FiltrarCurso/"+id
+
+            let lista=$("<ul>")
+            var html="";
+            $("#contenedorLista").html="";
+            $.ajax({
+                url:url+request,
+                type:"GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log("--ENTRANDO--");
+
+                    $.each(data, function (index, value) {
+
+                        html += "<li value='" + index + "'>" + value.nombre + value.apellidos+ "<button class='btnDetalles' value='" + value.idAlumno + "'>Detalles</button></li>"
+                    })
+                    lista.html=""
+                    lista.append(html)
+
+
+                    $("#contenedorLista").append(lista);
+                    $("#selCursos").html(html);
+
+                    $(".btnDetalles").click(function () {
+                        console.log("--CLICK--");
+                        console.log("valor idddd"+$(this).val());
+
+                        cargarAlumnos(id)
+                        mostrarDatos($(this).val())
+
+                    })
+                    cargarOptions()
+                }
+
+            })
+
+        }
+        function mostrarDatos(id){
+
+            let request2="api/Alumnos/FindAlumno/"+id
+            let html=""
+            // cargarAlumnos(id)
+            $("#contenedorLista").html="";
+            cargarOptions()
+            $.ajax({
+                url:url+request2,
+                type:"GET",
+                dataType: "json",
+
+
+                success: function (data) {
+
+                    html+="<h1>"+data.nombre+ data.apellidos+"</h1>"
+                    html+="<h1>ID ALUMNO:"+data.idAlumno+"</h1>"
+                    html+="<img style='{width: 20px;height: 20px}' src='"+data.imagen+"'/>";
+                    $("#contenedorLista").html(html);
+                }
+            })
+        }
+    </script>
 </body>
 </html>
